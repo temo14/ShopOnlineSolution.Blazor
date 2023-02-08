@@ -20,20 +20,21 @@ namespace ShopOnline.Api.Repositories
             return categories;
         }
 
-        public Task<ProductCategory> GetCategory(int id)
+        public async Task<ProductCategory> GetCategory(int id)
         {
-            throw new NotImplementedException();
+            var category = await _context.ProductCategories.SingleOrDefaultAsync(x => x.Id == id);
+            return category;
         }
 
-        public Task<Product> GetItem(int id)
+        public async Task<Product> GetItem(int id)
         {
-            throw new NotImplementedException();
+            var product = await _context.Products.FindAsync(id);
+            return product;
         }
 
         public async Task<IEnumerable<Product>> GetItems()
         {
             var products = await _context.Products.ToListAsync();
-
             return products;
         }
     }
