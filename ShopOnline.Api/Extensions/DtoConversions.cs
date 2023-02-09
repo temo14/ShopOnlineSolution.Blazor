@@ -56,5 +56,19 @@ namespace ShopOnline.Api.Extensions
                         TotalPrice=product.Price * cartItem.Qty
                     }).ToList();
         }
+        public static CartitemDto ConvertToDto(this CartItem item, Product product)
+        {
+            return new CartitemDto
+            {
+                Id= item.Id,
+                ProductId= item.ProductId,
+                ProductName=product.Name,
+                ProductDescription=product.Description,
+                ProductImgUrl=product.ImageURL,
+                Price=product.Price,
+                Qty=item.Qty,
+                TotalPrice=product.Price * item.Qty
+            };
+        }
     }
 }
