@@ -13,6 +13,8 @@ namespace ShopOnlineSolution.Blazor.Pages
 
         [Inject]
         public IShoppingCartService ShoppingCartService { get; set; }
+        [Inject]
+        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
         public List<CartitemDto> ShoppingCartItems { get; set; }
         public string ErrorMessage { get; set; }
         protected string TotalPrice { get; set; }
@@ -24,7 +26,7 @@ namespace ShopOnlineSolution.Blazor.Pages
             
             try
             {
-                ShoppingCartItems = await ShoppingCartService.GetItems(HardCoded.UserId);
+                ShoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
                 CartChanged();
             }
             catch (Exception ex)
@@ -35,12 +37,10 @@ namespace ShopOnlineSolution.Blazor.Pages
         protected async Task DeleteCartItem_Click(int id)
         {
             var cartItemDto = await ShoppingCartService.DeleteItem(id);
-            if (cartItemDto != null)
-            {
-                RemoveCartItem(id);
-                UpdateItemTotalPrice(cartItemDto);
-                CartChanged();
-            }
+
+            await RemoveCartItem(id);
+            CartChanged();
+
         }
 
         protected async Task UpdateQtyCartItem_Click(int id, int qty)
@@ -57,7 +57,7 @@ namespace ShopOnlineSolution.Blazor.Pages
 
                     var returnedUpdateItemDto = await ShoppingCartService.UpdateItem(updateItemDto);
 
-                    UpdateItemTotalPrice(returnedUpdateItemDto);
+                    await UpdateItemTotalPrice(returnedUpdateItemDto);
 
                     CartChanged();
 
@@ -85,13 +85,15 @@ namespace ShopOnlineSolution.Blazor.Pages
             await Js.InvokeVoidAsync("MakeUpdateQtyButtonVisible", id, true);
         }
 
-        private void UpdateItemTotalPrice(CartitemDto cartitemDto)
+        private async Task UpdateItemTotalPrice(CartitemDto cartitemDto)
         {
             var cartItemDto = ShoppingCartItems.FirstOrDefault(x => x.Id == cartitemDto.Id);
             if (cartitemDto !=null)
             {
                 cartItemDto.TotalPrice = cartitemDto.Price* cartItemDto.Qty;
             }
+
+            await ManageCartItemsLocalStorageService.SaveCollection(ShoppingCartItems);
         }
         private void CalculateCartsummaryTotals()
         {
@@ -108,10 +110,11 @@ namespace ShopOnlineSolution.Blazor.Pages
             TotalQuantity = ShoppingCartItems.Sum(x => x.Qty);
         }
 
-        private void RemoveCartItem(int id)
+        private async Task RemoveCartItem(int id)
         {
             var cartItemDto = ShoppingCartItems.FirstOrDefault(x => x.Id == id);
             ShoppingCartItems.Remove(cartItemDto);
+            await ManageCartItemsLocalStorageService.SaveCollection(ShoppingCartItems);
         }
 
         private void CartChanged()

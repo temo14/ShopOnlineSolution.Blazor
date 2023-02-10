@@ -11,13 +11,21 @@ namespace ShopOnlineSolution.Blazor.Pages
 
         [Inject]
         public IShoppingCartService ShoppingCartService { get; set; }
+        [Inject]
+        public IManageProductsLocalStorageService ManageProductsLocalStorageService { get; set; }
+        [Inject]
+        public IManageCartItemsLocalStorageService ManageCartItemsLocalStorageService { get; set; }
 
         public IEnumerable<ProductDto> Products { get; set;}
 
         protected override async Task OnInitializedAsync()
         {
-            Products = await ProductService.GetItems();
-            var shoppingCartItems = await ShoppingCartService.GetItems(HardCoded.UserId);
+            await ClearLocalStorage();
+
+            Products = await ManageProductsLocalStorageService.GetCollection();
+
+            var shoppingCartItems = await ManageCartItemsLocalStorageService.GetCollection();
+
             var totalQty = shoppingCartItems.Sum(x => x.Qty);
 
             ShoppingCartService.RaiseEventShoppingCartChanged(totalQty);
@@ -33,6 +41,11 @@ namespace ShopOnlineSolution.Blazor.Pages
         protected string GetCategoryName(IGrouping<int, ProductDto> groupedProductsDtos)
         {
             return groupedProductsDtos.FirstOrDefault(x => x.CategoryId == groupedProductsDtos.Key)!.CategoryName;
+        }
+        private async Task ClearLocalStorage()
+        {
+            await ManageProductsLocalStorageService.RemoveCollection();
+            await ManageCartItemsLocalStorageService.RemoveCollection();
         }
     }
 }
