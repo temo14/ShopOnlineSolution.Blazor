@@ -6,5 +6,7 @@ namespace ShopOnlineSolution.Blazor.Services.Contracts
     {
         Task<IEnumerable<ProductDto>> GetItems();
         Task<ProductDto> GetItem(int id);
+        Task<IEnumerable<ProductCategoryDto>> GetProductCategories();
+        Task<IEnumerable<ProductDto>> GetProductByCategory(int categoryId);
     }
 }

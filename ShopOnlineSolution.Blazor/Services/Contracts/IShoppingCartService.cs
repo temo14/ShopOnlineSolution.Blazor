@@ -8,10 +8,8 @@ namespace ShopOnlineSolution.Blazor.Services.Contracts
         Task<CartitemDto> AddItem(CartItemToAddDto cartItemToAddDto);
         Task<CartitemDto> DeleteItem(int id);
         Task<CartitemDto> UpdateItem(CartItemQtyUpdateDto cartItemQtyUpdate);
-
+        
         event Action<int> OnShoppingCartChanged;
-
         void RaiseEventShoppingCartChanged(int totalQty);
-
     }
 }
